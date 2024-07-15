@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         String text = "Congratulations " + user.getFullName() + " has successfully registered your account " + user.getUsername() + ", click this link to activate your account: " + activationLink;
 
         emailService.sendEmail(user.getEmail(), subject, text);
-
+        System.out.println("Email sent to " + user.getEmail() + " with activation link " + activationLink);
     }
 
     @Override

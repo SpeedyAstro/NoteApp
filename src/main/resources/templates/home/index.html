@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Trang chủ</title>
+    <title>Home</title>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="description" content="">
@@ -425,21 +425,18 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <!-- Liên kết đến trang chủ -->
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/note/list}">Danh sách ghi chú của tôi</a>
                     </li>
-                    <!-- Liên kết đến trang giới thiệu -->
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/note/what-is-note-myself}">What is note myself ?</a>
                     </li>
                     <!-- Marquee text -->
                     <li class="nav-item marquee" style="position: absolute; top: 16px; left: 573px; width: 582px">
-                        <span>Thông báo: Note Myself là một ứng dụng ghi chú mạnh mẽ cho phép bạn tổ chức và quản lý các ghi chú của mình một cách hiệu quả. Với Note Myself, bạn có thể tạo, chỉnh sửa và phân loại các ghi chú của mình, đảm bảo rằng tất cả thông tin quan trọng của bạn sẽ dễ dàng truy cập mỗi khi bạn cần. Cho dù bạn là sinh viên, chuyên gia hay bất kỳ ai khác, Note Myself đều có thể giúp bạn duy trì sự tổ chức và hiệu quả làm việc. Nói tạm biệt với các tờ ghi chú dính rải rác và chào đón một trải nghiệm ghi chú được tối ưu hóa với Note Myself. Bắt đầu ngay hôm nay và kiểm soát các ghi chú của bạn với Note Myself.</span>
+                        <span>Notice: Note Myself is a powerful note-taking app that allows you to organize and manage your notes effectively. With Note Myself, you can create, edit, and categorize your notes, ensuring that all your important information is easily accessible every time you need it. Whether you're a student, a professional, or anyone else, Note Myself can help you stay organized and productive. Say goodbye to scattered sticky notes and hello to an optimized note-taking experience with Note Myself. Get started today and take control of your notes with Note Myself.</span>
                     </li>
                 </ul>
             </div>
-            <!-- Phần "Xin chào" và nút đăng xuất -->
             <div class="d-flex justify-content-between align-items-center ml-auto"
                  th:if="${#authorization.expression('isAuthenticated()')}">
                 <!-- Xin chào -->
@@ -458,12 +455,11 @@
                         </div>
                     </div>
                     <div class="notice-content">
-                        <div class="username">Xin chào</div>
-                        <div class="lable-message"><span th:text="${fullName}">fullname</span><span class="number-message">0</span></div>
+                        <div class="username" th:text="${fullName}">Name</div>
+                        <div class="lable-message"><span th:text="${fullName}">fullname</span></div>
                         <div class="user-id">@<span th:text="${fullName}">fullname</span></div>
                     </div>
                 </button>
-                <!-- Nút đăng xuất -->
                 <div id="authLinks">
                     <div th:if="${#authorization.expression('isAuthenticated()')}">
                         <form id="logoutForm" th:action="@{/logout}" method="post" onsubmit="handleLogout(event)"
@@ -492,7 +488,7 @@
         <div class="row">
             <div class="col-md-12 col-sm-12">
                 <div class="home-info">
-                    <h1>Nơi lưu trữ mọi ghi nhớ của bạn <br>Đây là nơi bạn có thể tạo và quản lý các ghi chú của mình.
+                    <h1>Where to store all your notes <br>This is where you can create and manage your notes.
                     </h1>
                     <!-- You can change the date time in init.js file -->
                     <h1>Clock</h1>
@@ -517,14 +513,12 @@
                          style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 20px 0;">
                         <!-- Nút đăng nhập -->
                         <form th:action="@{/auth/login}" method="get">
-                            <button type="submit" class="normal-signin" style="width: 250px; margin-bottom: 10px;">Đăng
-                                nhập
+                            <button type="submit" class="normal-signin" style="width: 250px; margin-bottom: 10px;">Login
                             </button>
                         </form>
                         <!-- Nút đăng ký -->
                         <form th:action="@{/auth/register/create}" method="get">
-                            <button type="submit" class="create-account" style="width: 250px; margin-top: 10px;">Đăng
-                                ký
+                            <button type="submit" class="create-account" style="width: 250px; margin-top: 10px;">Register
                             </button>
                         </form>
                     </div>
@@ -553,7 +547,6 @@
         document.getElementById('seconds').textContent = seconds;
     }
 
-    // Cập nhật thời gian mỗi giây
     setInterval(updateClock, 1000);
 
     // Khởi chạy cập nhật thời gian lần đầu

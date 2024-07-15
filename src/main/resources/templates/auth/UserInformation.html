@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{fragments/base :: parent(~{::#content},~{::title},~{::script})}">
+<head>
+    <title>User Information</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+<body>
+<div id="content">
+    <div class="w-full p-4  bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
+        <div class="user-container">
+            <div class="button-container mt-5 ml-5 space-y-2 flex-col">
+                <button class="focus:outline-none text-white bg-blue-600 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:focus:ring-cyan-200 mr-5"
+                        onclick="window.location.href='/user/avatar'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" height="24" fill="none"
+                         class="svg-icon">
+                        <g stroke-width="2" stroke-linecap="round" stroke="#fff" fill-rule="evenodd"
+                           clip-rule="evenodd">
+                            <path d="m4 9c0-1.10457.89543-2 2-2h2l.44721-.89443c.33879-.67757 1.03131-1.10557 1.78889-1.10557h3.5278c.7576 0 1.4501.428 1.7889 1.10557l.4472.89443h2c1.1046 0 2 .89543 2 2v8c0 1.1046-.8954 2-2 2h-12c-1.10457 0-2-.8954-2-2z"></path>
+                            <path d="m15 13c0 1.6569-1.3431 3-3 3s-3-1.3431-3-3 1.3431-3 3-3 3 1.3431 3 3z"></path>
+                        </g>
+                    </svg>
+                    Avatar
+                </button>
+                <button class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:focus:ring-yellow-900 "
+                        onclick="window.location.href='/user/register-vip'">
+                    🎁 Register for VIP Member
+                </button>
+                <!--                set button to most right to the upper button -->
+
+            </div>
+            <br>
+            <hr
+                    class="my-5 h-px border-t-0 bg-transparent bg-gradient-to-r from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-400"/>
+            <br>
+            <h1 class="text-center text-2xl user-title-detail">Account information</h1>
+            <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
+            <br>
+            <hr
+                    class="my-5 h-px border-t-0 bg-transparent bg-gradient-to-r from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-400"/>
+            <br>
+            <div class="card">
+                <div class="card-body border-t border-gray-200 dark:border-gray-600">
+
+                    <div class="bg-blend-soft-light overflow-hidden shadow rounded-lg border">
+                        <div class="px-4 py-5 sm:px-6">
+                            <h3 class="text-lg leading-6 font-medium text-white">
+                                User Profile
+                            </h3>
+                            <p class="mt-1 max-w-2xl text-sm text-white">
+                                This is some information about the user.
+                            </p>
+                        </div>
+                        <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+                            <dl class="sm:divide-y sm:divide-gray-200">
+                                <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-white">
+                                        Full name
+                                    </dt>
+                                    <dd class="mt-1 text-sm text-white sm:mt-0 sm:col-span-2"
+                                        th:text="${user.fullName.toUpperCase()}">
+                                        John Doe
+                                    </dd>
+                                </div>
+                                <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-white">
+                                        Email address
+                                    </dt>
+                                    <dd class="mt-1 text-sm text-white sm:mt-0 sm:col-span-2" th:text="${user.email}">
+                                        johndoe@example.com
+                                    </dd>
+                                </div>
+                                <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-white">
+                                        Title
+                                    </dt>
+                                    <dd class="mt-1 text-sm text-white sm:mt-0 sm:col-span-2" th:text="${user.title}">
+                                        (123) 456-7890
+                                    </dd>
+                                </div>
+                                <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-white">
+                                        UserName
+                                    </dt>
+                                    <dd class="mt-1 text-sm text-white sm:mt-0 sm:col-span-2"
+                                        th:text="${user.username}">
+                                        123 Main St<br>
+                                        Anytown, USA 12345
+                                    </dd>
+                                </div>
+                                <div class="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm font-medium text-white">
+                                        Role
+                                    </dt>
+                                    <dd class="mt-1 text-sm text-white sm:mt-0 sm:col-span-2" th:text="${user.role}">
+                                        <span th:text="${user.role}"></span>
+                                        <span th:if="${user.role == 'VIPMember' || user.role == 'Admin' || user.role == 'Manager'}">
+                                    <img src="/images/verified.png" alt="Verified"
+                                         style="width:25px;height:25px;margin-bottom: 3px">
+                                </span>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!--                    <div class="info-container justify-center flex  flex-wrap text-center ">-->
+                    <!--                        <div class="info-column ">-->
+                    <!--                            <div class="mb-4 flex">-->
+                    <!--                                <label class="label ">Name :  </label>-->
+                    <!--                                <p class="user-info ml-2" th:text="${user.fullName}">First and last name:</p>-->
+                    <!--                            </div>-->
+                    <!--                            <div class="mb-4 flex flex-wrap">-->
+                    <!--                                <label class="label">Title :</label>-->
+                    <!--                                <p class="user-info ml-2" th:text="${user.title}">Name</p>-->
+                    <!--                            </div>-->
+                    <!--                            <div class="mb-4 flex">-->
+                    <!--                                <label class="label">Email:</label>-->
+                    <!--                                <p class="user-info ml-2" th:text="${user.email}">Email</p>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                        <div class="info-column ml-8">-->
+                    <!--                            <div class="mb-4 flex">-->
+                    <!--                                <label class="label">User name:</label>-->
+                    <!--                                <p class="user-info ml-2" th:text="${user.username}">username</p>-->
+                    <!--                            </div>-->
+                    <!--                            <div class="mb-4 flex">-->
+                    <!--                                <label class="label">Role:</label>-->
+                    <!--                                <p class="user-info ml-2">-->
+                    <!--                                    <span th:text="${user.role}"></span>-->
+                    <!--                                    <span th:if="${user.role == 'VIPMember' || user.role == 'Admin' || user.role == 'Manager'}">-->
+                    <!--                                    <img src="/images/verified.png" alt="Verified"-->
+                    <!--                                         style="width:25px;height:25px;margin-bottom: 3px">-->
+                    <!--                                </span>-->
+                    <!--                                </p>-->
+                    <!--                            </div>-->
+                    <!--                            <div class="mb-4 flex">-->
+                    <!--                                <label class="label ">Registration time:</label>-->
+                    <!--                                <p class="user-info ml-2" th:text="${user.registrationTime}">Registration period</p>-->
+                    <!--                            </div>-->
+                    <!--                        </div>-->
+                    <!--                    </div>-->
+                    <div class="button-container space-y-4 mt-5 ml-5">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg text-sm px-5 py-2.5 flex items-center space-x-2"
+                                onclick="window.location.href='/user/edit'">
+                            <span>Edit</span>
+                            <span class="restore1note__icon">
+            <svg class="svg w-6 h-6" viewBox="0 0 48 48" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M35.3 12.7c-2.89-2.9-6.88-4.7-11.3-4.7-8.84 0-15.98 7.16-15.98 16s7.14 16 15.98 16c7.45 0 13.69-5.1 15.46-12h-4.16c-1.65 4.66-6.07 8-11.3 8-6.63 0-12-5.37-12-12s5.37-12 12-12c3.31 0 6.28 1.38 8.45 3.55l-6.45 6.45h14v-14l-4.7 4.7z"></path>
+                <path d="M0 0h48v48H0z" fill="none"></path>
+            </svg>
+        </span>
+                        </button>
+                        <button class="bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg text-sm px-5 py-2.5 flex items-center space-x-2"
+                                onclick="window.location.href='/auth/reset-password'">
+                            <span>Reset Password</span>
+                            <span class="restore1note__icon">
+            <svg class="svg w-6 h-6" viewBox="0 0 48 48" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M35.3 12.7c-2.89-2.9-6.88-4.7-11.3-4.7-8.84 0-15.98 7.16-15.98 16s7.14 16 15.98 16c7.45 0 13.69-5.1 15.46-12h-4.16c-1.65 4.66-6.07 8-11.3 8-6.63 0-12-5.37-12-12s5.37-12 12-12c3.31 0 6.28 1.38 8.45 3.55l-6.45 6.45h14v-14l-4.7 4.7z"></path>
+                <path d="M0 0h48v48H0z" fill="none"></path>
+            </svg>
+        </span>
+                        </button>
+                        <!--                        Two factor Authentication button-->
+                        <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg text-sm px-5 py-2.5 flex items-center space-x-2"
+                                onclick="window.location.href='/auth/two-factor-auth'">
+                            <span>Enable Two Factor Authentication</span>
+                            <span class="restore1note__icon">
+            <svg class="svg w-6 h-6" viewBox="0 0 48 48" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M35.3 12.7c-2.89-2.9-6.88-4.7-11.3-4.7-8.84 0-15.98 7.16-15.98 16s7.14 16 15.98 16c7.45 0 13.69-5.1 15.46-12h-4.16c-1.65 4.66-6.07 8-11.3 8-6.63 0-12-5.37-12-12s5.37-12 12-12c3.31 0 6.28 1.38 8.45 3.55l-6.45 6.45h14v-14l-4.7 4.7z"></path>
+                <path d="M0 0h48v48H0z" fill="none"></path>
+            </svg>
+        </span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    console.log('User Information Page');
+</script>
+</body>
+</html>
