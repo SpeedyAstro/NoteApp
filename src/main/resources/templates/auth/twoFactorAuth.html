@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{fragments/base :: parent(~{::#content},~{::title},~{::script})}">
+<head>
+    <title>Reset Password</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div id="content">
+    <div class="w-full p-4 text-center bg-gray-800 border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700">
+        <h5 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Increase account security</h5>
+        <p class="mb-5 text-base text-white sm:text-lg dark:text-gray-400">
+            2-factor authentication protects your account by requiring an additional code when you sign in or change your password.
+        </p>
+        <h4 class="mt-10 mb-5 text-xl font-semibold text-gray-900 dark:text-white">Choose a security method</h4>
+
+        <div class="auth-method selected p-4 mb-4 bg-gray-800 border border-blue-200 rounded-lg cursor-pointer" id="auth-app">
+            <h4 class="text-lg font-bold text-white dark:text-white">Authentication application</h4>
+            <p th:if="${is2faEnabled}">
+                Status: <span class="text-green-500">Enabled</span>
+            <form th:if="${is2faEnabled}" th:action="@{/auth/disable-2fa}" method="post">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                <button class="btn-disable-2fa mt-2 px-4 py-2 bg-red-500 text-white rounded-lg" type="submit">Turn off</button>
+            </form>
+            </p>
+            <p th:unless="${is2faEnabled}">
+                <strong class="text-green-500">Recommend using</strong> - If you don't have one, you should download an authenticator app. This app will generate a code for you to enter when you log in.
+            </p>
+        </div>
+
+        <div class="auth-method disabled p-4 mb-4 bg-gray-800 border border-gray-200 rounded-lg cursor-not-allowed" id="auth-sms">
+            <h4 class="text-lg font-bold text-white dark:text-white">Text messages</h4>
+            <p>Not supported yet</p>
+        </div>
+
+        <div class="auth-method disabled p-4 mb-4 bg-gray-800 border border-gray-200 rounded-lg cursor-not-allowed" id="auth-key">
+            <h4 class="text-lg font-bold text-white dark:text-white">Security key</h4>
+            <p>Not supported yet</p>
+        </div>
+
+        <a class="btn-auth inline-block px-5 py-2.5 bg-blue-500 text-white rounded-lg opacity-50 cursor-not-allowed" id="continue-btn" th:href="@{/auth/setup-instructions}" th:if="${!is2faEnabled}">Next</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById('auth-app').addEventListener('click', function() {
+        var continueBtn = document.getElementById('continue-btn');
+
+        if (this.classList.toggle('selected')) {
+            this.style.borderColor = 'green';
+            continueBtn.classList.add('enabled');
+            continueBtn.style.cursor = 'pointer';
+            continueBtn.style.opacity = '1';
+            continueBtn.removeAttribute('disabled');
+        } else {
+            this.style.borderColor = 'blue';
+            continueBtn.classList.remove('enabled');
+            continueBtn.style.cursor = 'not-allowed';
+            continueBtn.style.opacity = '0.5';
+            continueBtn.setAttribute('disabled', 'disabled');
+        }
+    });
+
+    document.getElementById('continue-btn').addEventListener('click', function(event) {
+        if (!this.classList.contains('enabled')) {
+            event.preventDefault();
+            alert('Please select a security method before continuing.');
+        }
+    });
+
+    // Make other methods non-selectable
+    document.querySelectorAll('.auth-method.disabled').forEach(function(element) {
+        element.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9gybBogGzvYVF3pUyb7bL6EL8AdA5e0h5o5gFp3rB6E7g1mfN7w" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-QFJW5Aq8s5Xl5b5ILQeqU0lybQhTe8LfkFvgoxm4Z5twTR1L/RU7tazddP7SkfjJ" crossorigin="anonymous"></script>
+</body>
+</html>

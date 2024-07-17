@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{fragments/base :: parent(~{::#content},~{::title},~{::script})}">
+<head>
+    <title>Verify Two-Factor Authentication</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center h-screen">
+<div id="content" class="w-full max-w-md p-8 bg-gray-800 rounded-lg shadow-md">
+    <form class="space-y-6" method="POST" th:action="@{/auth/verify-login-2fa}">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+        <div class="text-center">
+            <h2 class="text-2xl font-bold">Please verify MFA</h2>
+            <p class="mt-2 text-sm text-gray-400">Multi-Factor Authentication (MFA) adds an additional layer of security to your account.</p>
+        </div>
+        <div class="flex justify-center space-x-2">
+            <input type="tel" maxlength="1" class="w-12 h-12 text-center text-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="">
+            <input type="tel" maxlength="1" class="w-12 h-12 text-center text-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="">
+            <input type="tel" maxlength="1" class="w-12 h-12 text-center text-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="">
+            <input type="tel" maxlength="1" class="w-12 h-12 text-center text-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="">
+            <input type="tel" maxlength="1" class="w-12 h-12 text-center text-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="">
+            <input type="tel" maxlength="1" class="w-12 h-12 text-center text-black border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="">
+        </div>
+        <div class="flex justify-between items-center">
+            <button type="submit" class="w-full py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Verify</button>
+            <a class="mt-4 text-gray-400 hover:text-gray-300" href="#">Clear</a>
+        </div>
+        <div class="mt-4 text-center">
+            <a href="/auth/logout" class="text-blue-500 hover:underline">Go Back</a>
+        </div>
+        <div id="error-message" class="text-red-500 mt-2"></div>
+        <div id="success-message" class="text-green-500 mt-2"></div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input[type="tel"]');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        document.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            let emptyFields = Array.from(inputs).filter(input => input.value === '').length;
+            if (emptyFields > 0) {
+                errorMessage.innerText = `You are missing ${emptyFields} digits.`;
+                successMessage.innerText = '';
+            } else {
+                errorMessage.innerText = '';
+                const totpCode = Array.from(inputs).map(input => input.value).join('');
+                fetch('/auth/verify-login-2fa', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="${_csrf.parameterName}"]').value
+                    },
+                    body: JSON.stringify({ totpCode: totpCode })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            successMessage.innerText = 'Verification successful!';
+                            errorMessage.innerText = '';
+                            setTimeout(() => {
+                                window.location.href = "/home";
+                            }, 2000);
+                        } else {
+                            errorMessage.innerText = data.message || 'Invalid code. Please try again.';
+                            successMessage.innerText = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        errorMessage.innerText = 'An error occurred. Please try again.';
+                        successMessage.innerText = '';
+                    });
+            }
+        });
+
+        document.querySelector('a[href="#"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            inputs.forEach(input => input.value = '');
+            inputs[0].focus();
+            errorMessage.innerText = '';
+            successMessage.innerText = '';
+        });
+    });
+</script>
+</body>
+</html>

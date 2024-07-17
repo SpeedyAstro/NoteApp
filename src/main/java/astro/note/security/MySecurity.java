@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -20,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.io.IOException;
@@ -31,11 +33,19 @@ public class MySecurity {
 
     @Autowired
     private MyUserDetailsService myUserDetailsService;
+
+    @Autowired
+    @Lazy
+    private TwoFactorAuthenticationFilter twoFactorAuthenticationFilter;
+
+    @Autowired
+    @Lazy
+    private ActiveStatusFilter activeStatusFilter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-//                .csrf(csrf -> csrf
-//                        .ignoringRequestMatchers("/auth/verify-2fa", "/auth/verify-login-2fa", "/user/**/avatar", "/user/**/avatar/delete"))
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/auth/verify-2fa", "/auth/verify-login-2fa", "/user/**/avatar", "/user/**/avatar/delete"))
                 .authorizeRequests(configurer -> configurer
                         .requestMatchers("/static/**").permitAll()
                         .requestMatchers("/note/what-is-note-myself").permitAll()
@@ -58,17 +68,19 @@ public class MySecurity {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/auth/login")
                         .permitAll()
-                );
-//                .exceptionHandling(exceptionHandling -> exceptionHandling
-//                        .defaultAuthenticationEntryPointFor(
-//                                new HttpStatusEntryPoint(HttpStatus.FOUND),
-//                                new AntPathRequestMatcher("/**")
-//                        )
-//                        .authenticationEntryPoint((request, response, authException) -> {
-//                            response.sendRedirect("/auth/login");
-//                        })
-//                        .accessDeniedHandler(accessDeniedHandler())
-//                );
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .defaultAuthenticationEntryPointFor(
+                                new HttpStatusEntryPoint(HttpStatus.FOUND),
+                                new AntPathRequestMatcher("/**")
+                        )
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/auth/login");
+                        })
+                        .accessDeniedHandler(accessDeniedHandler())
+                ).addFilterBefore(twoFactorAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(activeStatusFilter, UsernamePasswordAuthenticationFilter.class)
+        ;
         return http.build();
     }
 

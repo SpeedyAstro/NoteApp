@@ -1,6 +1,9 @@
 package astro.note.service.Interface;
 
 import astro.note.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.Map;
 
 public interface UserService {
     void registerUser(User user);
@@ -24,4 +27,12 @@ public interface UserService {
     String resetPasswordUseEmail(String token, String newPassword) throws Exception;
 
     void save(User user);
+
+    Map<String, String> generateTwoFactorAuthentication(User user, HttpServletRequest request);
+
+    String enableTwoFactorAuthentication(User user, String totpCode, HttpServletRequest httpServletRequest);
+
+    boolean verifyTwoFactorAuthenticationCode(User user, String totpCode);
+
+    String disableTwoFactorAuthentication(User user);
 }

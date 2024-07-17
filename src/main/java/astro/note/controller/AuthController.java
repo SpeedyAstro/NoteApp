@@ -10,10 +10,12 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -28,6 +30,8 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private AccountActivationTokenRepository accountActivationTokenRepository;
@@ -104,6 +108,31 @@ public class AuthController {
             return "auth/resetPassword";
         }
         return "redirect:/auth/login";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(@RequestParam("currentPassword") String currentPassword,
+                                @RequestParam("password") String password,
+                                @RequestParam("confirmPassword") String confirmPassword,
+                                RedirectAttributes redirectAttributes) {
+        User user = userService.getCurrentUser();
+        if (user!=null){
+            if (!passwordEncoder.matches(currentPassword, user.getPassword())){
+                redirectAttributes.addFlashAttribute("error", "Current password is incorrect.");
+                return "redirect:/auth/reset-password";
+            }
+            if (!password.equals(confirmPassword)){
+                redirectAttributes.addFlashAttribute("error", "Passwords do not match.");
+                return "redirect:/auth/reset-password";
+            }
+            user.setPassword(passwordEncoder.encode(password));
+            userService.updateUser(user);
+            redirectAttributes.addFlashAttribute("success", "Password updated successfully.");
+            return "redirect:/user/information";
+        }else {
+            redirectAttributes.addFlashAttribute("error", "User not found.");
+            return "redirect:/auth/login";
+        }
     }
 
 }

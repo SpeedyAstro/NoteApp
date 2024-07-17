@@ -8,6 +8,19 @@ import astro.note.entity.PasswordResetToken;
 import astro.note.entity.User;
 import astro.note.service.EmailService;
 import astro.note.service.Interface.UserService;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import dev.samstevens.totp.code.CodeGenerator;
+import dev.samstevens.totp.code.DefaultCodeGenerator;
+import dev.samstevens.totp.code.DefaultCodeVerifier;
+import dev.samstevens.totp.code.HashingAlgorithm;
+import dev.samstevens.totp.secret.DefaultSecretGenerator;
+import dev.samstevens.totp.secret.SecretGenerator;
+import dev.samstevens.totp.time.SystemTimeProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +29,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -25,19 +43,28 @@ public class UserServiceImpl implements UserService {
     @Value("${activation.link}")
     private String ActivationLink;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
 
-    @Autowired
-    private  PasswordEncoder passwordEncoder;
-    @Autowired
-    private PasswordResetTokenRepository passwordResetTokenRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
+    private final AccountActivationTokenRepository accountActivationTokenRepository;
+
+    private final DefaultCodeVerifier verifier;
     @Autowired
-    private AccountActivationTokenRepository accountActivationTokenRepository;
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService, PasswordResetTokenRepository passwordResetTokenRepository, AccountActivationTokenRepository accountActivationTokenRepository) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.accountActivationTokenRepository = accountActivationTokenRepository;
+        CodeGenerator codeGenerator = new DefaultCodeGenerator(HashingAlgorithm.SHA1);
+        this.verifier = new DefaultCodeVerifier(codeGenerator, new SystemTimeProvider());
+        this.verifier.setAllowedTimePeriodDiscrepancy(1);
+    }
+
     @Override
     @Transactional
     public void registerUser(User user) {
@@ -152,5 +179,67 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(User user) {
         userRepository.save(user);
+    }
+
+    @Override
+    public Map<String, String> generateTwoFactorAuthentication(User user, HttpServletRequest request) {
+        SecretGenerator secretGenerator = new DefaultSecretGenerator();
+        String tempSecret = secretGenerator.generate();
+        String totpUrl = "otpauth://totp/NoteApp:" + user.getUsername() + "?secret=" + tempSecret + "&issuer=NoteApp";
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix;
+        try {
+            bitMatrix = qrCodeWriter.encode(totpUrl, BarcodeFormat.QR_CODE, 200, 200);
+        } catch (WriterException e) {
+            throw new RuntimeException("Error generating QR code");
+        }
+        ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+        try {
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+        } catch (IOException e) {
+            throw new RuntimeException("Error writing QR code to stream");
+        }
+        String qrImage = Base64.getEncoder().encodeToString(pngOutputStream.toByteArray());
+        String qrDataUri = "data:image/png;base64," + qrImage;
+
+        Map<String, String> response = new HashMap<>();
+        response.put("qrDataUri", qrDataUri);
+        response.put("totpSecret", tempSecret);
+
+        request.getSession().setAttribute("tempTotpSecret", tempSecret);
+
+        return response;
+    }
+
+    @Override
+    public String enableTwoFactorAuthentication(User user, String totpCode, HttpServletRequest httpServletRequest) {
+        String tempTotpSecret = (String) httpServletRequest.getSession().getAttribute("tempTotpSecret");
+        if (tempTotpSecret == null) {
+            return "Temporary TOTP code not found";
+        }
+        if (!verifier.isValidCode(tempTotpSecret, totpCode)) {
+            return "Invalid authentication code";
+        }
+        user.setTotpSecret(tempTotpSecret);
+        userRepository.save(user);
+
+        httpServletRequest.getSession().removeAttribute("tempTotpSecret");
+
+        return "success";
+    }
+
+    @Override
+    public boolean verifyTwoFactorAuthenticationCode(User user, String totpCode) {
+        return verifier.isValidCode(user.getTotpSecret(), totpCode);
+    }
+
+    @Override
+    public String disableTwoFactorAuthentication(User user) {
+        if (user.getTotpSecret() == null) {
+            return "Two-factor authentication is not enabled";
+        }
+        user.setTotpSecret(null);
+        userRepository.save(user);
+        return "success";
     }
 }
