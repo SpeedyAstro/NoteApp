@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{fragments/base :: parent(~{::#content},~{::title},~{::script})}">
+<head>
+    <title>View Note</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-200/10 dark:bg-gray-900 text-white">
+<div id="content" class="container mx-auto mt-5">
+    <div class="note-container bg-gray-100 dark:bg-gray-800 rounded-xl shadow-lg p-6">
+        <button class="flex items-center text-gray-600 dark:text-gray-400 hover:underline" onclick="goBack()">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back
+        </button>
+        <h2 class="note-title-detail text-center text-3xl font-bold mb-4">Note Details</h2>
+        <div class="card bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md">
+            <div class="card-body">
+                <p class="note-time text-gray-600 dark:text-gray-400 text-center mb-4" th:text="${note.createdAt}">Note Time</p>
+                <div class="mb-4">
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm mb-2">Content:</label>
+                    <button class="copy flex items-center text-blue-600 dark:text-blue-400 hover:underline mb-2" onclick="copyToClipboard()">
+                        <span class="tooltip mr-2" data-text-end="Copied!" data-text-initial="Copy to clipboard">Copy to clipboard</span>
+                        <svg class="w-6 h-6 clipboard" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16.5 2h-4.75A1.75 1.75 0 0 0 10 3.75V4H5.75A1.75 1.75 0 0 0 4 5.75v12.5A1.75 1.75 0 0 0 5.75 20h12.5A1.75 1.75 0 0 0 20 18.25V5.75A1.75 1.75 0 0 0 18.25 4H14v-.25A1.75 1.75 0 0 0 16.5 2zM6.5 5.75c0-.138.112-.25.25-.25h4.25V5h1.5v.5h4.25c.138 0 .25.112.25.25v12.5c0 .138-.112.25-.25.25H6.75a.25.25 0 0 1-.25-.25zM10 8.5v7H9v-7zm4 0v7h-1v-7z"></path>
+                        </svg>
+                    </button>
+                    <p class="note-content text-lg font-semibold" th:text="${note.content}">Note content goes here</p>
+                </div>
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Title:</label>
+                    <p class="note-title text-lg font-semibold" th:text="${note.title}">Note title goes here</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <button type="button" class="btn btn-warning rounded-full py-2 px-4 bg-yellow-500 text-white hover:bg-yellow-600" onclick="window.location.href='/note/list'">All Notes</button>
+            <button type="button" class="btn btn-success rounded-full py-2 px-4 bg-green-500 text-white hover:bg-green-600" onclick="window.location.href='/note/create'">Add Note</button>
+            <a th:href="@{/note/edit/{noteId}(noteId=${note.id})}" class="btn btn-pink rounded-full py-2 px-4 bg-pink-500 text-white hover:bg-pink-600">Edit</a>
+            <a th:href="@{/note/delete/{noteId}(noteId=${note.id})}" class="btn btn-red rounded-full py-2 px-4 bg-red-500 text-white hover:bg-red-600" onclick="event.preventDefault(); moveToTrash(${note.id})">Delete</a>
+        </div>
+    </div>
+</div>
+<script>
+    function moveToTrash(noteId) {
+        if (confirm('Are you sure you want to move this note to the trash?')) {
+            window.location.href = '/note/delete/' + noteId;
+        }
+    }
+
+    function goBack() {
+        window.location.href = '/note/list';
+    }
+
+    function copyToClipboard() {
+        const content = document.querySelector(".note-content").innerText;
+        const title = document.querySelector(".note-title").innerText;
+        const textToCopy = `Content:\n${content}\n\nTitle:\n${title}`;
+        const textarea = document.createElement("textarea");
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+    }
+</script>
+</body>
+</html>

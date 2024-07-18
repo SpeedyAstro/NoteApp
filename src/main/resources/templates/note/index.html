@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Notes</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white">
+<section class="py-8">
+    <h1 class="text-4xl font-bold text-center mb-8">My Notes</h1>
+
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between mb-6">
+            <button class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded" onclick="window.location.href='/home'">
+                <svg class="inline-block w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M46 20.038c0-.7-.3-1.5-.8-2.1l-16-17c-1.1-1-3.2-1.4-4.4-.3-1.2 1.1-1.2 3.3 0 4.4l11.3 11.9H3c-1.7 0-3 1.3-3 3s1.3 3 3 3h33.1l-11.3 11.9c-1 1-1.2 3.3 0 4.4 1.2 1.1 3.3.8 4.4-.3l16-17c.5-.5.8-1.1.8-1.9z"></path>
+                </svg>
+                Back
+            </button>
+            <div class="relative">
+                <input id="searchInput" placeholder="Search notes" type="search" class="bg-gray-800 text-white rounded-full py-2 px-4 pl-10 focus:outline-none">
+                <svg class="absolute left-0 top-0 mt-3 ml-3 w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex justify-between mb-4">
+                <button class="bg-yellow-500 hover:bg-yellow-400 text-white font-bold py-2 px-4 rounded" onclick="window.location.href='/note/list'">All Notes</button>
+                <div class="flex space-x-2">
+                    <button class="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded" onclick="window.location.href='/note/create'">
+                        <svg class="inline-block w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16,2V5.5H21V22H3V5.5H8V2ZM10,10V12.79L8.41,11.2L7,12.61,12.41,18L18,12.39,16.59,11L15,12.59V10ZM15,7H9V5.5h6Z" />
+                        </svg>
+                        Add Note
+                    </button>
+                    <form th:action="@{/note/move-all-to-trash}" method="post" onsubmit="return confirm('Are you sure you want to delete all notes?');">
+                        <button type="submit" class="bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 rounded">
+                            <svg class="inline-block w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"></path>
+                            </svg>
+                            Delete All
+                        </button>
+                    </form>
+                    <button class="bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 rounded" onclick="window.location.href='/note/download'">
+                        <svg class="inline-block w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0C5.37 0 0 5.37 0 12c0 6.62 5.37 12 12 12s12-5.38 12-12C24 5.37 18.63 0 12 0zm-1 17H7l5-6h-4V6h8v5h-4l5 6h-4z"></path>
+                        </svg>
+                        Download
+                    </button>
+                    <form th:action="@{/group/choice}" method="get">
+                        <button type="submit" class="bg-purple-500 hover:bg-purple-400 text-white font-bold py-2 px-4 rounded">
+                            <svg class="inline-block w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+                            </svg>
+                            Team Notes
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left table-auto">
+                    <thead class="bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-2">Content</th>
+                        <th class="px-4 py-2">Title</th>
+                        <th class="px-4 py-2">Created At</th>
+                        <th class="px-4 py-2">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${message}">
+                        <td colspan="4" class="text-center py-4" th:text="${message}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(notes)} and ${message == null}">
+                        <td colspan="4" class="text-center py-4">No notes found</td>
+                    </tr>
+                    <tr th:each="note : ${notes}">
+                        <td class="border-t px-4 py-2" th:text="${note.content}"></td>
+                        <td class="border-t px-4 py-2" th:text="${note.title}"></td>
+                        <td class="border-t px-4 py-2" th:text="${note.createdAt}"></td>
+                        <td class="border-t px-4 py-2">
+                            <div class="flex space-x-2">
+                                <a th:href="@{/note/read/{id}(id=${note.id})}" class="
+                                        bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded">
+                                    <svg class="inline-block w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M11.8 4.7h1.5V7H11.8V4.7Zm-4.5 0h1.5V7H7.3V4.7ZM11.8 9.4h1.5v2.3H11.8V9.4ZM7.3 9.4h1.5v2.3H7.3V9.4ZM16.2 4.7H17V7h-.8V4.7Zm0 4.7H17v2.3h-.8V9.4ZM19 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2ZM5 2H4v16h1V2Zm14 16h-1V4h1v14Zm0 0h1V2h-1v16Zm-7-6.5 2-2h-2V9h2v1.5l2-2h-2V7h2L12 10.5Zm1 1-1-1H8v1.5h5ZM8 12h5l-1 1H8v1.5h5l-2 2H8v1.5h7v-2h-2v-2H15V7.5H8V12Zm7 0v2h2v-1.5h-2Z"></path>
+                                    </svg>
+                                    Read
+                                </a>
+                                <a th:href="@{/note/edit/{id}(id=${note.id})}" class="bg-yellow-500 hover:bg-yellow-400 text-white font-bold py-2 px-4 rounded">
+                                    <svg class="inline-block w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M3 17.25V21h3.75l11.21-11.21-3.75-3.75L3 17.25Zm14.71-10.21c.39-.39.39-1.02 0-1.41L16.67 4c-.39-.39-1.02-.39-1.41 0L13.5 5.76l3.75 3.75 1.46-1.47Z"></path>
+                                    </svg>
+                                    Edit
+                                </a>
+                                <form th:action="@{/note/move-to-trash/{id}(id=${note.id})}" method="post" onsubmit="return confirm('Are you sure you want to delete this note?');">
+                                    <button type="submit" class="bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 rounded">
+                                        <svg class="inline-block w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M3 6h18v2H3zm2 3h2v11H5zm4 0h2v11H9zm4 0h2v11h-2zm4 0h2v11h-2zm3-4H5l1-1h12l1 1z"></path>
+                                        </svg>
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

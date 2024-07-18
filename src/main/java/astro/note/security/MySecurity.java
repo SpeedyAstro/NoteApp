@@ -48,10 +48,10 @@ public class MySecurity {
                         .ignoringRequestMatchers("/auth/verify-2fa", "/auth/verify-login-2fa", "/user/**/avatar", "/user/**/avatar/delete"))
                 .authorizeRequests(configurer -> configurer
                         .requestMatchers("/static/**").permitAll()
-                        .requestMatchers("/note/what-is-note-myself").permitAll()
+                        .requestMatchers("/templates/note/what-is-note-myself").permitAll()
                         .requestMatchers("/auth/forgot", "/auth/reset-password-form","auth/register/confirm", "/auth/activate").permitAll()
                         .requestMatchers("/auth/two-factor-auth", "/auth/generate-2fa", "/auth/enable-2fa", "/auth/disable-2fa", "/auth/setup-instructions", "/auth/verify-2fa","/auth/verify-login-2fa", "/auth/information").authenticated()
-                        .requestMatchers("/note/**", "/loading/**", "/user/**", "/group/**").authenticated()
+                        .requestMatchers("/templates/note/**", "/loading/**", "/user/**", "/group/**").authenticated()
                         .requestMatchers("/group/**").hasAnyRole("VIPMEMBER", "ADMIN", "MANAGER")
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "MANAGER")
                         .anyRequest().permitAll()

@@ -23,7 +23,7 @@ public class TwoFactorAuthenticationFilter extends OncePerRequestFilter {
     private UserService userService;
 
     private final List<String> permitAllUrls = List.of(
-            "/note/what-is-note-myself", "/auth/logout", "/home"
+            "/templates/note/what-is-note-myself", "/auth/logout", "/home"
     );
 
     @Override
