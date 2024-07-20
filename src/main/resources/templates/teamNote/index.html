@@ -1,10 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" th:replace="~{fragments/base :: parent(~{::#content},~{::title},~{::script})}">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Group Notes</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .custom-button:hover {
+            background-color: rgb(157, 223, 255);
+        }
+        .readmore-btn:hover {
+            background-color: rgb(102 196 255);
+        }
+        .text {
+            color: rgb(255, 255, 255);
+        }
+        .edit-btn:hover {
+            color: transparent;
+        }
+        .edit-btn:hover .edit-svg {
+            right: 43%;
+            margin: 0;
+            padding: 0;
+            border: none;
+            transition-duration: .3s;
+        }
+        .deleteButton:hover .bin path {
+            fill: #fff;
+        }
+        .tooltip {
+            background-color: rgb(41, 41, 41);
+        }
+        .deleteButton:hover .tooltip {
+            opacity: 1;
+        }
+        .deleteButton:active {
+            transform: scale(0.98);
+        }
+    </style>
 </head>
-<body>
-$END$
+
+<body class="bg-gray-900 text-white">
+<div id="content">
+    <section class="py-6">
+        <h1 class="text-3xl font-bold text-center font-poppins my-8">
+            <span th:text="${group.groupName}"></span> - <span th:text="${group.groupCode}"></span>
+        </h1>
+        <div class="flex justify-center mb-8">
+            <button class="text-blue-400 hover:underline" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+        <script>
+            function goBack() {
+                window.location.href = '/group/choice';
+            }
+        </script>
+        <div class="container mx-auto px-4">
+            <div class="bg-gray-800 shadow-lg rounded p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <button class="bg-yellow-500 text-white rounded-full py-2 px-4 hover:bg-yellow-600" onclick="window.location.href='/note/list'">
+                        Personal Notes
+                    </button>
+                    <div class="relative">
+                        <input id="searchGroupInput" placeholder="Search content" type="search" class="bg-gray-700 border border-gray-600 rounded p-2 text-white">
+                        <button class="absolute right-0 top-0 mt-2 mr-2 text-gray-400" onclick="searchGroupNotes([[${group.id}]])">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <script>
+                        let previousSearchTerm = '';
+
+                        document.getElementById('searchGroupInput').addEventListener('keypress', function (event) {
+                            if (event.key === 'Enter') {
+                                const searchTerm = document.getElementById('searchGroupInput').value.trim();
+                                if (searchTerm.length > 0) {
+                                    previousSearchTerm = searchTerm;
+                                    const groupId = [[${group.id}]];
+                                    window.location.href = `/group/search/findByGroupNoteContentStartingWith/${groupId}/${encodeURIComponent(searchTerm)}`;
+                                }
+                            }
+                        });
+
+                        window.onload = function () {
+                            document.getElementById('searchGroupInput').value = previousSearchTerm;
+                        };
+                    </script>
+                    <div class="flex items-center space-x-2">
+                        <a th:href="@{/group/addNote(groupId=${group.id})}" class="bg-green-500 text-white rounded-full py-2 px-4 hover:bg-green-600">
+                            Add Note
+                        </a>
+                        <form th:action="@{/group/note/delete-all}" method="post" class="inline">
+                            <input type="hidden" name="groupId" th:value="${group.id}"/>
+                            <button type="submit" class="bg-red-500 text-white rounded-full py-2 px-4 hover:bg-red-600" onclick="return confirm('Are you sure you want to delete all notes?')">
+                                Delete All
+                            </button>
+                        </form>
+                        <button class="bg-blue-500 text-white rounded-full py-2 px-4 hover:bg-blue-600" th:onclick="'window.location.href=\'/group/download?groupId=' + ${group.id} + '\''">
+                            Download
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="table-auto w-full bg-transparent border-collapse">
+                        <thead>
+                        <tr class="bg-gray-700 text-gray-400 text-xs uppercase">
+                            <th class="px-4 py-2">Content</th>
+                            <th class="px-4 py-2">Title</th>
+                            <th class="px-4 py-2">Created At</th>
+                            <th class="px-4 py-2">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(teamNotes)} and ${message == null}">
+                            <td colspan="4" class="text-center py-4">The note list is empty</td>
+                        </tr>
+                        <tr th:if="${message != null}">
+                            <td colspan="4" class="text-center py-4">
+                                <div class="alert bg-yellow-100 text-yellow-800 p-4 rounded">
+                                    <span th:text="${message}"></span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:each="note : ${teamNotes}">
+                            <td class="border-t border-gray-700 px-4 py-2 text-left text-gray-300">
+                                <span th:text="${note.noteContent}">Note Content</span>
+                            </td>
+                            <td class="border-t border-gray-700 px-4 py-2 text-left text-gray-300">
+                                <span th:text="${note.noteTitle}">Note Title</span>
+                            </td>
+                            <td class="border-t border-gray-700 px-4 py-2 text-left text-gray-300">
+                                <span th:text="${group.createdAt}">Created At</span>
+                            </td>
+                            <td class="border-t border-gray-700 px-4 py-2 text-center">
+                                <a th:href="@{/group/note/read/{id}(id=${note.id})}" class="bg-purple-500 text-white rounded-full py-2 px-4 hover:bg-purple-600">
+                                    View
+                                </a>
+                                <form th:action="@{/group/note/delete/{noteId}(noteId=${note.id})}" method="post" class="inline">
+                                    <input type="hidden" name="groupId" th:value="${group.id}"/>
+                                    <button type="submit" class="bg-red-500 text-white rounded-full py-2 px-4 hover:bg-red-600" onclick="return confirm('Are you sure you want to delete this note?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
 </body>
 </html>

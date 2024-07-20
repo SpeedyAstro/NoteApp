@@ -1,10 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Create Group</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: lightblue;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, #3498db 10%, transparent 20%),
+            radial-gradient(circle, transparent 10%, #3498db 20%);
+            background-size: 30px 30px;
+            animation: moveBackground 20s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(20%, 20%);
+            }
+        }
+    </style>
 </head>
 <body>
-$END$
+<div class="container flex justify-center items-center h-full w-full">
+    <div class="bg-white rounded-lg shadow-lg p-8 w-4/5 relative z-10 text-center">
+        <h2 class="text-2xl font-semibold mb-4">Create New Group</h2>
+        <form th:action="@{/group/create}" method="post">
+            <div class="mb-4">
+                <label for="groupName" class="block text-gray-700 text-sm font-bold mb-2">Group Name:</label>
+                <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="groupName" name="groupName" required>
+            </div>
+            <div class="mb-4">
+                <label for="groupCodeInput" class="block text-gray-700 text-sm font-bold mb-2">Group Code:</label>
+                <span id="groupCodeDisplay" th:text="${groupCode}" class="block mb-2"></span>
+                <input type="hidden" id="groupCodeInput" name="groupCode" th:value="${groupCode}">
+            </div>
+            <button type="submit" class="inline-block py-2 px-4 text-white bg-gradient-to-r from-blue-500 via-pink-500 to-yellow-500 rounded-full transition-all duration-300 ease-in-out hover:animate-pulse">
+                Create Group
+            </button>
+        </form>
+    </div>
+</div>
 </body>
 </html>

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "groups")
+@Table(name = "note_groups")
 @NoArgsConstructor
 @Getter
 @Setter

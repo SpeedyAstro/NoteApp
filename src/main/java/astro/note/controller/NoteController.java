@@ -136,6 +136,12 @@ public class NoteController {
                 .body(new InputStreamResource(in));
     }
 
+    @PostMapping("/move-to-trash/{id}")
+    public String moveToTrash(@PathVariable Long id) {
+        noteService.moveToTrash(id);
+        return "redirect:/note/list";
+    }
+
     @GetMapping("/read/{id}")
     public String readNote(@PathVariable Long id, Model model, Principal principal) {
         Optional<User> optionalUser = getAuthenticatedUser(principal);
@@ -174,5 +180,27 @@ public class NoteController {
         model.addAttribute("user", userDto);
         model.addAttribute("note", note);
         return "note/editNote";
+    }
+
+    @PostMapping("/update/{id}")
+    public String update(@PathVariable Long id, @ModelAttribute("note") Note note, Model model, Principal principal) {
+        Optional<User> optionalUser = getAuthenticatedUser(principal);
+        if (optionalUser.isEmpty()) {
+            return "redirect:/login";
+        }
+
+        User user = optionalUser.get();
+        Note existingNote = noteService.getNoteById(id);
+
+        if (existingNote == null || !existingNote.getUser().equals(user)) {
+            return "redirect:/note/list";
+        }
+
+        existingNote.setTitle(note.getTitle());
+        existingNote.setContent(note.getContent());
+        existingNote.setTime(LocalDateTime.now());
+
+        noteService.updateNote(existingNote);
+        return "redirect:/note/list";
     }
 }

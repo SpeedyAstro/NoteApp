@@ -91,6 +91,7 @@ public class TwoFactorAuthController {
 
     @GetMapping("/auth/verify-login-2fa")
     public String getVerifyLogin2FaPage() {
+        System.out.println("getVerifyLogin2FaPage");
         return "auth/verify-login-2fa";
     }
 
